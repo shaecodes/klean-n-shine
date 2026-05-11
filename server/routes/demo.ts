@@ -10,6 +10,10 @@ export const handleDemo: RequestHandler = (req, res) => {
 };
 
 export const handleCreateAppointment: RequestHandler = async (req, res) => {
+  console.log("Creating appointment with body:", JSON.stringify(req.body));
+  console.log("Supabase URL:", process.env.SUPABASE_URL ? "set" : "NOT SET");
+  console.log("Supabase Key:", process.env.SUPABASE_ANON_KEY ? "set" : "NOT SET");
+
   const {
     name,
     email,
@@ -39,6 +43,7 @@ export const handleCreateAppointment: RequestHandler = async (req, res) => {
     .single();
 
   if (checkError && checkError.code !== "PGRST116") {
+    console.error("Check error:", checkError);
     return res.status(500).json({ error: checkError.message });
   }
 
@@ -74,10 +79,11 @@ export const handleCreateAppointment: RequestHandler = async (req, res) => {
     .select();
 
   if (error) {
-    console.error("Supabase error:", error);
+    console.error("Supabase insert error:", error);
     return res.status(500).json({ error: error.message });
   }
 
+  console.log("Appointment created:", data[0]?.id);
   res.status(201).json({ success: true, appointment: data[0] });
 };
 

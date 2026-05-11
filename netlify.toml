@@ -6,7 +6,7 @@ publish = "dist/spa"
 [functions]
 external_node_modules = []
 node_bundler = "esbuild"
-included_files = ["node_modules/@supabase/**", "node_modules/express/**", "node_modules/cors/**", "node_modules/serverless-http/**"]
+included_files = ["node_modules/@supabase/**", "node_modules/express/**", "node_modules/cors/**", "node_modules/serverless-http/**", "node_modules/dotenv/**"]
 
 [[redirects]]
 force = true
