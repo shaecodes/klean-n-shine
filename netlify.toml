@@ -4,9 +4,9 @@ functions = "netlify/functions"
 publish = "dist/spa"
 
 [functions]
-external_node_modules = ["express"]
+external_node_modules = []
 node_bundler = "esbuild"
-included_files = ["node_modules/@supabase/**"]
+included_files = ["node_modules/@supabase/**", "node_modules/express/**", "node_modules/cors/**", "node_modules/serverless-http/**"]
 
 [[redirects]]
 force = true
