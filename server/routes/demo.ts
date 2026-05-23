@@ -10,7 +10,17 @@ export const handleDemo: RequestHandler = (req, res) => {
 };
 
 export const handleCreateAppointment: RequestHandler = async (req, res) => {
-  console.log("Creating appointment with body:", JSON.stringify(req.body));
+  // Handle Buffer body from Netlify functions
+  let body = req.body;
+  if (Buffer.isBuffer(body)) {
+    try {
+      body = JSON.parse(body.toString("utf8"));
+    } catch {
+      return res.status(400).json({ error: "Invalid request body" });
+    }
+  }
+
+  console.log("Parsed body:", JSON.stringify(body));
   console.log("Supabase URL:", process.env.SUPABASE_URL ? "set" : "NOT SET");
   console.log("Supabase Key:", process.env.SUPABASE_ANON_KEY ? "set" : "NOT SET");
 
@@ -31,8 +41,8 @@ export const handleCreateAppointment: RequestHandler = async (req, res) => {
     vehicle_price,
     service_price,
     total_price,
-  } = req.body;
-
+  } = body;
+  
   // Check for existing booking at same date and time
   const { data: existing, error: checkError } = await supabase
     .from("appointments")
