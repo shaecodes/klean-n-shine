@@ -133,16 +133,128 @@ export default function Booking() {
       setBookedTimes([]);
     }
   };
-  
+
   const handleContinueToPayment = () => {
     const validationErrors = validate(booking);
     setErrors(validationErrors);
     setTouched({ name: true, email: true, phone: true, address: true, licensePlate: true });
-
     if (Object.keys(validationErrors).length > 0) return;
     if (!booking.date || !booking.time) return;
-
     setStep("payment");
+  };
+
+  const openPDFReceipt = () => {
+    const receiptWindow = window.open("", "_blank");
+    if (receiptWindow) {
+      receiptWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Klean N Shine Receipt</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; background: #f0f4ff; display: flex; justify-content: center; padding: 40px 20px; }
+            .receipt { background: white; width: 100%; max-width: 520px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+            .header { background: linear-gradient(135deg, #1d4ed8, #3b82f6); padding: 32px 28px 24px; text-align: center; }
+            .logo-circle { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin: 0 auto 14px; display: block; }
+            .header h1 { color: white; font-size: 26px; font-weight: bold; letter-spacing: 2px; }
+            .header p { color: #bfdbfe; font-size: 13px; margin-top: 4px; }
+            .badge { display: inline-block; background: #22c55e; color: white; font-size: 11px; font-weight: bold; padding: 5px 16px; border-radius: 99px; margin-top: 14px; letter-spacing: 1px; }
+            .body { padding: 28px; }
+            .section { margin-bottom: 22px; }
+            .section-title { font-size: 10px; font-weight: bold; color: #94a3b8; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #f1f5f9; }
+            .row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f8fafc; }
+            .row:last-child { border-bottom: none; }
+            .label { color: #64748b; font-size: 13px; }
+            .value { color: #1e293b; font-size: 13px; font-weight: 600; text-align: right; max-width: 65%; }
+            .plate { font-family: monospace; background: #fef9c3; border: 1px solid #fde047; padding: 2px 10px; border-radius: 6px; letter-spacing: 3px; font-size: 13px; }
+            .total-box { background: linear-gradient(135deg, #1d4ed8, #3b82f6); border-radius: 12px; padding: 20px 24px; margin: 24px 0 20px; }
+            .total-inner { display: flex; justify-content: space-between; align-items: center; }
+            .total-label { color: #bfdbfe; font-size: 13px; }
+            .total-amount { color: white; font-size: 32px; font-weight: bold; }
+            .total-sub { color: #93c5fd; font-size: 11px; margin-top: 6px; }
+            .divider { border: none; border-top: 1px dashed #e2e8f0; margin: 20px 0; }
+            .footer { text-align: center; padding: 0 28px 32px; }
+            .tagline { color: #1d4ed8; font-weight: bold; font-size: 14px; margin-bottom: 6px; }
+            .footer p { color: #94a3b8; font-size: 11px; margin-top: 4px; line-height: 1.6; }
+            .booking-id { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; margin: 16px 0; text-align: center; }
+            .booking-id p { color: #94a3b8; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+            .booking-id span { color: #1e293b; font-size: 12px; font-family: monospace; font-weight: bold; }
+            @media print {
+              body { background: white; padding: 0; }
+              .receipt { box-shadow: none; border-radius: 0; max-width: 100%; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="receipt">
+            <div class="header">
+              <img src="${window.location.origin}/logo.jpg" class="logo-circle" alt="Klean N Shine" />
+              <h1>KLEAN N SHINE</h1>
+              <p>Mobile Car Wash Service · We Bring the Shine to You</p>
+              <div class="badge">✓ BOOKING CONFIRMED</div>
+            </div>
+
+            <div class="body">
+              <div class="section">
+                <div class="section-title">Customer Information</div>
+                <div class="row"><span class="label">Name</span><span class="value">${booking.name}</span></div>
+                <div class="row"><span class="label">Email</span><span class="value">${booking.email}</span></div>
+                <div class="row"><span class="label">Phone</span><span class="value">${booking.phone}</span></div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Service Location</div>
+                <div class="row"><span class="label">Address</span><span class="value">${booking.address}</span></div>
+                ${booking.addressDetails ? `<div class="row"><span class="label">Notes</span><span class="value">${booking.addressDetails}</span></div>` : ""}
+              </div>
+
+              <div class="section">
+                <div class="section-title">Vehicle Details</div>
+                <div class="row"><span class="label">Type</span><span class="value">${selectedVehicle?.label}</span></div>
+                <div class="row"><span class="label">License Plate</span><span class="value"><span class="plate">${booking.licensePlate}</span></span></div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Appointment</div>
+                <div class="row"><span class="label">Date</span><span class="value">${booking.date}</span></div>
+                <div class="row"><span class="label">Time</span><span class="value">${booking.time}</span></div>
+                <div class="row"><span class="label">Service</span><span class="value">${selectedService?.label}</span></div>
+                <div class="row"><span class="label">Payment Method</span><span class="value">${booking.paymentMethod === "card" ? "Credit Card" : "Pay on Arrival"}</span></div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">Pricing Breakdown (JMD)</div>
+                <div class="row"><span class="label">Vehicle — ${selectedVehicle?.label}</span><span class="value">J$${selectedVehicle?.price || 0}</span></div>
+                <div class="row"><span class="label">Service — ${selectedService?.label}</span><span class="value">J$${selectedService?.price || 0}</span></div>
+              </div>
+
+              <div class="total-box">
+                <div class="total-inner">
+                  <span class="total-label">TOTAL AMOUNT ${booking.paymentMethod === "invoice" ? "DUE ON ARRIVAL" : "CHARGED"}</span>
+                  <span class="total-amount">J$${totalPrice}</span>
+                </div>
+                <p class="total-sub">Booked on ${new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+              </div>
+
+              <hr class="divider" />
+
+              <div class="footer">
+                <div class="tagline">✦ Thank You for Choosing Klean N Shine! ✦</div>
+                <p>Our team will arrive at your address on the scheduled date and time.</p>
+                <p>For any queries, please contact us directly.</p>
+                <p style="margin-top: 10px; color: #cbd5e1;">© ${new Date().getFullYear()} Klean N Shine · Mobile Car Wash Service</p>
+              </div>
+            </div>
+          </div>
+          <script>
+            window.onload = function() { window.print(); }
+          </script>
+        </body>
+        </html>
+      `);
+      receiptWindow.document.close();
+    }
   };
 
   const handleSubmit = async () => {
@@ -199,57 +311,8 @@ export default function Booking() {
         return;
       }
 
-      if (booking.paymentMethod === "invoice") {
-        const invoiceContent = `
-KLEAN N SHINE - CAR WASH APPOINTMENT INVOICE
-=============================================
-Date Booked: ${new Date().toLocaleDateString()}
-Appointment Date: ${booking.date}
-Appointment Time: ${booking.time}
-
-CUSTOMER INFORMATION
---------------------
-Name: ${booking.name}
-Email: ${booking.email}
-Phone: ${booking.phone}
-
-SERVICE ADDRESS
----------------
-Address: ${booking.address}
-${booking.addressDetails ? `Additional Details: ${booking.addressDetails}` : ""}
-
-VEHICLE INFORMATION
--------------------
-License Plate: ${booking.licensePlate}
-Vehicle Type: ${selectedVehicle?.label}
-
-SERVICE DETAILS
----------------
-Service: ${selectedService?.label}
-
-PRICING (JMD)
--------------
-Vehicle Service: J$${selectedVehicle?.price || 0}
-Service Package: J$${selectedService?.price || 0}
----
-TOTAL: J$${totalPrice}
-
-Payment Method: Payment Upon Arrival
-
-Thank you for choosing Klean N Shine!
-We'll be there to service your vehicle.
-`;
-        const element = document.createElement("a");
-        element.setAttribute(
-          "href",
-          "data:text/plain;charset=utf-8," + encodeURIComponent(invoiceContent)
-        );
-        element.setAttribute("download", `klean-n-shine-receipt-${booking.date}.txt`);
-        element.style.display = "none";
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-      }
+      // Open PDF receipt for all customers
+      openPDFReceipt();
 
       setStep("confirmation");
     }
@@ -445,9 +508,7 @@ We'll be there to service your vehicle.
                   onBlur={() => handleBlur("name")}
                   className={fieldClass("name")}
                 />
-                {touched.name && errors.name && (
-                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-                )}
+                {touched.name && errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
 
               <div>
@@ -463,9 +524,7 @@ We'll be there to service your vehicle.
                   onBlur={() => handleBlur("email")}
                   className={fieldClass("email")}
                 />
-                {touched.email && errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
+                {touched.email && errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
 
               <div>
@@ -481,9 +540,7 @@ We'll be there to service your vehicle.
                   onBlur={() => handleBlur("phone")}
                   className={fieldClass("phone")}
                 />
-                {touched.phone && errors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                )}
+                {touched.phone && errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
             </div>
 
@@ -512,18 +569,13 @@ We'll be there to service your vehicle.
                 )}
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Additional Directions (Optional)
-                </label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Additional Directions (Optional)</label>
                 <textarea
-                  placeholder="e.g., Gate code is 1234, park in driveway, apartment number, building access instructions, etc."
+                  placeholder="e.g., Gate code is 1234, park in driveway, apartment number, etc."
                   value={booking.addressDetails}
                   onChange={(e) => setBooking((prev) => ({ ...prev, addressDetails: e.target.value }))}
                   className="w-full h-24 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-blue-100 resize-none"
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Add any helpful directions, gate codes, parking info, or special instructions for our team
-                </p>
               </div>
             </div>
 
@@ -592,9 +644,7 @@ We'll be there to service your vehicle.
                     );
                   })}
                 </div>
-                {!booking.time && (
-                  <p className="text-xs text-gray-500 mt-2">Please select a time slot</p>
-                )}
+                {!booking.time && <p className="text-xs text-gray-500 mt-2">Please select a time slot</p>}
               </div>
             )}
 
@@ -624,9 +674,7 @@ We'll be there to service your vehicle.
                 {booking.date && booking.time && (
                   <div className="flex justify-between border-t pt-2 mt-2">
                     <span>Date & Time:</span>
-                    <span className="font-medium text-gray-900">
-                      {booking.date} at {booking.time}
-                    </span>
+                    <span className="font-medium text-gray-900">{booking.date} at {booking.time}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-2 mt-2 font-semibold">
@@ -858,7 +906,7 @@ We'll be there to service your vehicle.
                     <>
                       <li className="flex items-start gap-2">
                         <span className="text-primary font-bold">✓</span>
-                        Invoice downloaded to your device
+                        Receipt downloaded to your device
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-primary font-bold">✓</span>
@@ -875,6 +923,13 @@ We'll be there to service your vehicle.
             </div>
 
             <div className="flex flex-col gap-3">
+              <Button
+                onClick={openPDFReceipt}
+                variant="outline"
+                className="w-full h-12 rounded-xl border-blue-400 text-blue-600 hover:bg-blue-50"
+              >
+                Download Receipt
+              </Button>
               <Button
                 onClick={handleEditBooking}
                 disabled={cancelling}
@@ -921,7 +976,7 @@ We'll be there to service your vehicle.
       </main>
 
       <footer className="bg-gray-100 text-center py-6 px-4 text-gray-600 text-sm mt-8">
-        <p>© 2024 Klean N Shine. Professional Mobile Car Wash Service.</p>
+        <p>© {new Date().getFullYear()} Klean N Shine. Professional Mobile Car Wash Service.</p>
       </footer>
     </div>
   );
