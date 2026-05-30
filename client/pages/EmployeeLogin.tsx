@@ -22,9 +22,6 @@ export default function EmployeeLogin() {
     e.preventDefault();
     setError("");
 
-    console.log("Expected:", import.meta.env.VITE_EMPLOYEE_EMAIL, import.meta.env.VITE_EMPLOYEE_PASSWORD);
-    console.log("Entered:", email, password);
-
     const employee = demoEmployees.find(
       (emp) => emp.email === email && emp.password === password
     );
