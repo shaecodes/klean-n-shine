@@ -12,8 +12,10 @@ export default function EmployeeLogin() {
 
   // Demo employees for testing
   const demoEmployees = [
-    { email: "employee@kleanshine.com", password: "demo123" },
-    { email: "manager@kleanshine.com", password: "demo123" },
+    {
+      email: import.meta.env.VITE_EMPLOYEE_EMAIL,
+      password: import.meta.env.VITE_EMPLOYEE_PASSWORD,
+    },
   ];
 
   const handleLogin = (e: React.FormEvent) => {
@@ -31,17 +33,12 @@ export default function EmployeeLogin() {
       );
       navigate("/employee-dashboard");
     } else {
-      setError("Invalid email or password. Try: employee@kleanshine.com / demo123");
+      setError("Invalid email or password. Please try again.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary via-blue-500 to-blue-600">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white opacity-5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl animate-pulse" />
-      </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8">
@@ -70,7 +67,7 @@ export default function EmployeeLogin() {
                   <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
                   <Input
                     type="email"
-                    placeholder="employee@kleanshine.com"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -90,7 +87,7 @@ export default function EmployeeLogin() {
                   <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
                   <Input
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="•••••••••••••"
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
